@@ -60,6 +60,8 @@ To improve the loading time of your package, you can use `atom-package-deps` onl
 
 This prevents loading of `package-deps` every time the `activate` function is called. For that, use `atom-package-deps` to install dependencies only if your dependencies are not already loaded in Atom:
 ```js
+export async function activate() {
+
 // check if the dependencies are not loaded
  if (!(
    atom.packages.isPackageLoaded("atom-ide-markdown-service") &&
@@ -67,24 +69,32 @@ This prevents loading of `package-deps` every time the `activate` function is ca
  )) {
    // install dependencies only if not already loaded
    import("atom-package-deps").then((atom_package_deps) => {
-     atom_package_deps.install('atom-ide-datatip');
+     await atom_package_deps.install('atom-ide-datatip');
    })
  }
+
+}
+
 ```
 
-The above syntax with dynamic `import` works with TypeScript, Rollup, Babel, etc. You can use `require` too:
+`install_deps` function will be like this (in TypeScript, Rollup, etc):
 ```js
-// check if the dependencies are not loaded
- if (!(
-   atom.packages.isPackageLoaded("atom-ide-markdown-service") &&
-   atom.packages.isPackageLoaded("busy-signal")
- )) {
-   // install dependencies only if not already loaded
-   require("atom-package-deps").then((atom_package_deps) => {
-     atom_package_deps.install('atom-ide-datatip');
-   })
- }
+async function install_deps() {
+  import("atom-package-deps").then((atom_package_deps) => {
+    atom_package_deps.install('atom-ide-datatip');
+  })
+}
 ```
+
+If you are not using TypeScript, Rollup, etc, use the following instead:
+```js
+async function install_deps() {
+  new Promise(function (resolve) { resolve(require('atom-package-deps')); }).then(atom_package_deps => {
+    atom_package_deps.install('atom-ide-datatip');
+  });
+}
+```
+
 
 #### API
 
